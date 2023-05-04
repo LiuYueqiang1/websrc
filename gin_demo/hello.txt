@@ -1,0 +1,3 @@
+<h1>hello golang!</h1>
+<h2>hello golang!</h2>
+<img id ='i1' src ='https://www.liwenzhou.com/images/qrcode_for_gzh.jpg'>

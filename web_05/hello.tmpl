@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Hello</title>
+</head>
+<body>
+    <hr>
+    <p>u1</p>
+    <p>Hello {{- .u1.Name -}}</p>
+    <p>年龄 {{ .u1.Age }}</p>
+    <p>地址 {{.u1.Address}}</p>
+    <hr>
+    {{with .s1 }}
+    <p>s1</p>
+    <p>Hello {{ .name }}</p>
+    <p>地址 {{ .addr}}</p>
+    {{end }}
+    <hr>
+    {{if lt .u1.Age 22}}
+    好好上学
+    {{else}}
+    好好工作
+    {{end}}
+    <hr>
+    {{ range $idx,$hobby := .hobby}}
+    <p>{{$idx}} - {{$hobby}}</p>
+    {{end}}
+</body>
+</html>
