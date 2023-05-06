@@ -30,6 +30,8 @@ func home(w http.ResponseWriter, r *http.Request) {
 	//渲染模板
 	t.Execute(w, msg)
 }
+
+// 将相同的模板写到base中
 func index2(w http.ResponseWriter, r *http.Request) {
 	//定义模板
 	//解析模板
