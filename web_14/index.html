@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>login</title>
+</head>
+<body>
+{{/*发送post请求，发送到gin框架的form表单中*/}}
+<form action="/form" method="post" novalidate autocomplete="off">
+    <label for="username">username:</label>
+    <div><input type="text" name="username" id ="username"></div>
+    <label for="password">password:</label>
+    <div><input type="password" name="password" id ="password"></div>
+
+    <input type="submit" value="登录">
+</form>
+</body>
+</html>

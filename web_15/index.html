@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>上传文件示例</title>
+</head>
+<body>
+{{/*发送post请求，发送到gin框架的upload表单中*/}}
+<form action="/upload" method="post" novalidate autocomplete="off">
+    <input type="file" name="f1">
+    <input type="submit" value="上传">
+</form>
+</body>
+</html>

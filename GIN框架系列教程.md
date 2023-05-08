@@ -278,3 +278,103 @@ func main() {
    }
 }
 ```
+
+# lesson 14
+
+## 1、读取网页上的username和password
+
+```go
+type UserInfo struct {
+   Username string `form:"username" json:"username"`
+   Password string `form:"password" json:"password"`
+}
+
+func main() {
+   r := gin.Default()
+   r.LoadHTMLFiles("F:\\goland\\go_project\\go_web\\websrc\\web_14\\index.html")
+   r.GET("/user", func(c *gin.Context) {
+      //username := c.Query("username")
+      //password := c.Query("password")
+      //u := UserInfo{
+      // username: username,
+      // password: password,
+      //}
+      var u UserInfo
+      err := c.ShouldBind(&u)
+      if err != nil {
+         c.JSON(http.StatusBadRequest, gin.H{
+            "error": err.Error(),
+         })
+      } else {
+         fmt.Printf("%#v\n", u)
+         c.JSON(http.StatusOK, gin.H{
+            "status": "ok",
+         })
+      }
+   })
+   r.Run()
+```
+
+```
+//http://127.0.0.1:8080/user?username=qimi&password=111
+```
+
+## 2、访问http://127.0.0.1:8080/index
+
+写入form表单中username和password后给post请求
+
+```html
+index.html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>login</title>
+</head>
+<body>
+{{/*发送post请求，发送到gin框架的form表单中*/}}
+<form action="/form" method="post" novalidate autocomplete="off">
+    <label for="username">username:</label>
+    <div><input type="text" name="username" id ="username"></div>
+    <label for="password">password:</label>
+    <div><input type="password" name="password" id ="password"></div>
+
+    <input type="submit" value="登录">
+</form>
+</body>
+</html>
+```
+
+```go
+func main() {
+r := gin.Default()
+	r.LoadHTMLFiles("F:\\goland\\go_project\\go_web\\websrc\\web_14\\index.html")
+r.GET("/index", func(c *gin.Context) {
+   c.HTML(http.StatusOK, "index.html", nil)
+})
+
+r.POST("/form", func(c *gin.Context) {
+   var u UserInfo
+   err := c.ShouldBind(&u)
+   if err != nil {
+      c.JSON(http.StatusBadRequest, gin.H{
+         "error": err.Error(),
+      })
+   } else {
+      fmt.Printf("%#v\n", u)
+      c.JSON(http.StatusOK, gin.H{
+         "status": "ok",
+      })
+   }
+})
+r.Run()
+}
+```
+
+## 3、使用postman发送 在终端可以接收到数据
+
+# lesson 15 文件上传
+
