@@ -9,7 +9,8 @@
 </head>
 <body>
 {{/*发送post请求，发送到gin框架的upload表单中*/}}
-<form action="/upload" method="post" novalidate autocomplete="off">
+{{/*加后面的enctype enctype="multipart/form-data" 才能上传成功，不加也行，别加novalidate autocomplete="off" 就行*/}}
+<form action="/upload" method="post"  >
     <input type="file" name="f1">
     <input type="submit" value="上传">
 </form>

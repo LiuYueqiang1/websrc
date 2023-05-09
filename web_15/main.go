@@ -21,7 +21,7 @@ func main() {
 			return
 		} else {
 			//	dst := fmt.Sprintf("F:\\goland\\go_project\\go_web\\websrc\\web_15\\%s", f.Filename)
-			dst := path.Join("./", f.Filename)
+			dst := path.Join("F:\\goland\\go_project\\go_web\\websrc\\web_15", f.Filename)
 			c.SaveUploadedFile(f, dst)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "OK",
