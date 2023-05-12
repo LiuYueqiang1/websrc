@@ -378,3 +378,32 @@ r.Run()
 
 # lesson 15 文件上传
 
+# lesson 18 中间件
+
+浏览器 -路由（处理函数）
+
+认证了就登陆，否则打回去
+
+![image-20230511211016163](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511211016163.png)
+
+简单的中间件
+
+![image-20230511211844509](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511211844509.png)
+
+![image-20230511212205430](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511212205430.png)
+
+![image-20230511212944368](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511212944368.png)
+
+
+
+![image-20230511213030175](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511213030175.png)
+
+![image-20230511213313502](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511213313502.png)
+
+![image-20230511213326704](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511213326704.png)
+
+
+
+![image-20230511215703412](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511215703412.png)
+
+![image-20230511220049309](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511220049309.png)
