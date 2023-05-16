@@ -65,13 +65,40 @@ func main() {
 	//fmt.Println(user)
 
 	//*******Struct&Map查询
-	var user = make([]User, 10)
+	//var user = make([]User, 10)
 	//db.Where(&User{Name: "掌门人", Age: 69}).Find(&user)
 	//fmt.Println(user)
 	//db.Where(map[string]interface{}{"name": "掌门人", "age": 69}).Find(&user)
 	//fmt.Println(user)
 	// 主键的切片
-	db.Where([]int64{17, 18, 19}).Find(&user)
-	fmt.Println(user)
+	//db.Where([]int64{17, 18, 19}).Find(&user)
+	//fmt.Println(user)
 	//// SELECT * FROM users WHERE id IN (20, 21, 22);
+
+	//Attrs 如果记录未找到，将使用参数创建 struct 和记录
+	//未找到
+	//db.Where(User{Name: "未找到"}).Attrs(User{Age: 20}).FirstOrCreate(&user)
+	//
+	//db.Where(User{Name: "掌门人"}).Attrs(User{Age: 69}).FirstOrCreate(&user)
+
+	//Select，指定你想从数据库中检索出的字段，默认会选择全部字段。
+	//db.Select("name", "age").Find(&user)
+	//fmt.Println(user)
+	//
+	//db.Select([]string{"id", "name", "age"}).Find(&user)
+	//fmt.Println(user)
+
+	//Limit,指定从数据库中检索出最大的记录数
+	//db.Limit(3).Find(&user)
+	//fmt.Println(user)
+
+	var user = make([]User, 10)
+	//Order排序
+	db.Order("age desc").Order("name").Find(&user)
+	fmt.Println(user)
+
+	//Count，该 model 能获取的记录总数。
+	var count int
+	db.Model(&User{}).Where("name = ?", "掌门人").Count(&count)
+	fmt.Println(count)
 }
