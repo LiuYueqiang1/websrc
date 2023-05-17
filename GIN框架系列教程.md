@@ -407,3 +407,155 @@ r.Run()
 ![image-20230511215703412](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511215703412.png)
 
 ![image-20230511220049309](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511220049309.png)
+
+# lesson 19 Gorm
+
+导包
+
+创建数据库db1
+
+创建表
+
+```go
+import (
+   "github.com/jinzhu/gorm"
+   _ "github.com/jinzhu/gorm/dialects/mysql"
+)
+
+type UserInfo struct {
+	ID     uint
+	Name   string
+	Gender string
+	Hobby  string
+}
+
+func main() {
+    // 连接mysql数据库 ，数据库的用户名、密码
+	db, err := gorm.Open("mysql", "root:961024@tcp(localhost:3306)/db1?charset=utf8mb4&parseTime=True&loc=Local")
+	if err != nil {
+		fmt.Println("init db failed!,err:", err)
+		return
+	}
+	defer db.Close()
+
+	//自动迁移
+	//创建了一个名字为user_infos的表
+	db.AutoMigrate(&UserInfo{}) //自动迁移为给定的模型运行自动迁移，只会添加缺失的字段，不会删除/更改当前数据
+
+	u1 := UserInfo{1, "qimi", "男", "篮球"}
+	u2 := UserInfo{2, "欧阳修", "男", "混元功法"}
+
+	//在 user_infos的表 创建记录
+	db.Create(&u1)
+	db.Create(&u2)
+	//查询
+	var u = new(UserInfo)  //将结构体的地址赋给 u
+	db.First(u)            //First find first record that match given conditions, order by primary key
+	fmt.Printf("%#v\n", u) //**** &main.UserInfo{ID:0x1, Name:"qimi", Gender:"男", Hobby:"篮球"}
+
+	var uu UserInfo //将结构体的数值赋给 uu
+	db.Find(&uu, "hobby=?", "混元功法")
+	fmt.Printf("%#v\n", uu) //**** main.UserInfo{ID:0x2, Name:"欧阳修", Gender:"男", Hobby:"混元功法"}
+
+	//更新
+	db.Model(&u).Update("hobby", "唱跳rap")
+	//删除
+	db.Delete(&u) //故此处删掉的u为 ID：01的
+}
+```
+
+# lesson 20 Gorm
+
+指定表名
+
+```go
+// 使用方法更改表名
+// 将 User 的表名设置为 `profiles`
+func (User) TableName() string {
+	return "profiles"
+}
+func main() {
+	db, err := gorm.Open("mysql", "root:961024@tcp(localhost:3306)/db1?charset=utf8mb4&parseTime=True&loc=Local")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	//字段迁移
+	db.AutoMigrate(&User{})
+	//表名默认就是结构体名称的复数 users
+
+	// 使用User结构体 创建 名为`deleted_users`的表
+	db.Table("deleted_users").CreateTable(&User{})
+}
+```
+
+# lesson 21 Gorm 增
+
+```go
+package main
+
+import (
+   "database/sql"
+   "fmt"
+   "github.com/jinzhu/gorm"
+   _ "github.com/jinzhu/gorm/dialects/mysql"
+)
+
+type User struct {
+   ID   int64
+   Name string `gorm:"default:'马保郭'"`
+   Age  int64
+}
+
+type User2 struct {
+   ID   int64
+   Name *string `grom:"default:'小王'"`
+   Age  int64
+}
+
+type User3 struct {
+   ID   int64
+   Name sql.NullString `grom:"default:'小王3'"`
+   Age  int64
+}
+
+func main() {
+   db, err := gorm.Open("mysql", "root:961024@tcp(localhost:3306)/db1?charset=utf8mb4&parseTime=True&loc=Local")
+   if err != nil {
+      panic(err)
+   }
+   defer db.Close()
+   db.AutoMigrate(User{})  //新建表user
+   db.AutoMigrate(User2{}) // 新建表 user2
+   db.AutoMigrate(User3{})
+   user := User{
+      Name: "掌门人",
+      Age:  69,
+   }
+   fmt.Println(db.NewRecord(user)) //查询主键是否为空  true
+   db.Create(&user)                //在users表中创建一条记录
+   fmt.Println(db.NewRecord(user)) //查询主键是否为空 false
+   user1 := User{
+      Name: "",
+      Age:  73,
+   }
+   db.Create(&user1) //在users表中创建一条记录
+
+   user2 := User2{
+      Name: new(string),
+      Age:  18,
+   }
+   db.Create(&user2)
+
+   user3 := User3{
+      Name: sql.NullString{"", true},
+      Age:  22,
+   }
+   db.Create(user3)
+
+   //查询操作 根据主键查询第一条记录
+   db.First(&user)
+   fmt.Println(&user)
+   //
+}
+```
