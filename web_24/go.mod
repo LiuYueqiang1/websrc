@@ -1,4 +1,4 @@
-module web_23.com/web23
+module web24.com/web24
 
 go 1.20
 
