@@ -61,6 +61,9 @@ func main() {
 			c.BindJSON(&todo)
 			// 1、 从请求中把数据拿出来
 			// 2、存入数据
+			//err = DB.Create(&todo).Error
+			//if err!= nil {
+			//}
 			// 3、返回响应
 			if err = DB.Create(&todo).Error; err != nil {
 				c.JSON(http.StatusOK, gin.H{
@@ -86,12 +89,41 @@ func main() {
 				c.JSON(http.StatusOK, todoList)
 			}
 		})
-		// 查看某一个待办事项
+		// 修改某一个待办事项
 		v1Group.PUT("/todo/:id", func(c *gin.Context) {
-
+			// 拿到要修改的id
+			id, ok := c.Params.Get("id")
+			//Get返回与给定名称匹配的第一个Param的值和一个布尔值true。
+			//如果没有找到匹配的参数，则返回一个空字符串和一个布尔值false。
+			if !ok {
+				c.JSON(http.StatusOK, gin.H{"error": "无效的id"})
+				return
+			}
+			// 根据id 匹配数据
+			var todo ToDo
+			if err = DB.Where("id=?", id).First(&todo).Error; err != nil {
+				c.JSON(http.StatusOK, gin.H{"error": err.Error()})
+				return
+			}
+			// 修改
+			c.BindJSON(&todo)
+			if err = DB.Save(&todo).Error; err != nil {
+				c.JSON(http.StatusOK, gin.H{"error": err.Error()})
+			} else {
+				c.JSON(http.StatusOK, todo)
+			}
 		})
 		v1Group.DELETE("/todo/:id", func(c *gin.Context) {
-
+			id, ok := c.Params.Get("id")
+			if !ok {
+				c.JSON(http.StatusOK, gin.H{"error": "无效的id"})
+				return
+			}
+			if err = DB.Where("id=?", id).Delete(ToDo{}).Error; err != nil {
+				c.JSON(http.StatusOK, gin.H{"error": err.Error()})
+			} else {
+				c.JSON(http.StatusOK, gin.H{id: "deleted"})
+			}
 		})
 	}
 
