@@ -279,6 +279,139 @@ func main() {
 }
 ```
 
+# lesson 9 将网站中输入的变为HTML
+
+## 加载文件、自定义函数
+
+
+
+```go
+//加载文件：
+r.LoadHTMLFiles("./websrc/web_09/templates/index.tmpl")
+r.LoadHTMLGlob("./websrc/web_09/templates/**/*")
+
+//自定义函数
+	//gin 框架中给模板添加自定义函数
+	r.SetFuncMap(template.FuncMap{
+        //函数名：匿名函数
+		"safe": func(str string) template.HTML {
+			return template.HTML(str)
+		},
+	})
+```
+
+
+
+```go
+func main() {
+   r := gin.Default()
+   //r.LoadHTMLFiles("./websrc/web_09/templates/index.tmpl") //模板解析
+   // 静态文件
+   r.Static("/static", "./websrc/web_09/statics")
+   //gin 框架中给模板添加自定义函数
+   r.SetFuncMap(template.FuncMap{
+      "safe": func(str string) template.HTML {
+         return template.HTML(str)
+      },
+   })
+   r.LoadHTMLGlob("./websrc/web_09/templates/**/*")
+   r.GET("posts/index", func(c *gin.Context) {
+      c.HTML(http.StatusOK, "index.tmpl", gin.H{ //渲染模板
+         "title": "liwenzhou.com",
+      })
+   })
+   r.GET("users/posts", func(c *gin.Context) {
+      c.HTML(http.StatusOK, "posts.tmpl", gin.H{ //渲染模板
+         "title": "<a href='http://liwenzhou.com'>liwenzhou的博客</a>",
+      })
+   })
+   r.Run(":9090")
+}
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{/*css文件*/}}
+    <link rel="stylesheet" href="/static/index.css">
+    <title>users/posts</title>
+</head>
+<body>
+<div>{{ .title | safe }}</div>
+{{/*js文件*/}}
+<script src = "/static/index.js"></script>
+</body>
+</html>
+```
+
+# lesson 10 利用前端文件加载后台
+
+```go
+func main() {
+   r := gin.Default()
+   // 静态文件
+   r.Static("/assets", "F:\\goland\\go_project\\go_web\\modle\\assets")
+   //gin 框架中给模板添加自定义函数
+   
+   //r.LoadHTMLFiles("F:\\goland\\go_project\\go_web\\modle\\index.html") //模板解析
+   r.LoadHTMLGlob("F:\\goland\\go_project\\go_web\\modle\\templates/*")
+
+   r.GET("index", func(c *gin.Context) {
+      c.HTML(http.StatusOK, "index.html", nil)
+   })
+   r.GET("widgets.html", func(c *gin.Context) {
+      c.HTML(http.StatusOK, "widgets.html", nil)
+   })
+   r.GET("index.html", func(c *gin.Context) {
+      c.HTML(http.StatusOK, "index.html", nil)
+   })
+   r.GET("index2.html", func(c *gin.Context) {
+      c.HTML(http.StatusOK, "index2.html", nil)
+   })
+   r.Run(":9090")
+}
+```
+
+# lesson 11 map和结构体
+
+```go
+func main() {
+   r := gin.Default()
+   r.GET("/json", func(c *gin.Context) {
+      // 方法1：使用map
+      //data := map[string]interface{}{
+      // "name":    "小王子",
+      // "age":     18,
+      // "message": "hello world!",
+      //}
+      data := gin.H{"name": "小王子", "age": 18, "message": "hello world!"}
+      //H is a shortcut for map[string]interface{}
+      c.JSON(http.StatusOK, data)
+   })
+
+   // 方法2：结构体，灵活使用tag对结构体字段做定制化操作
+   type msg struct {
+      Name    string `json:"name"`
+      Message string `json:"message"`
+      Age     int    `json:"age"`
+   }
+   r.GET("/newjson", func(c *gin.Context) {
+      data := msg{
+         "马老师",
+         "我打一个连五鞭,发生甚摸事了",
+         69,
+      }
+      c.JSON(http.StatusOK, data)
+   })
+   r.Run()
+}
+```
+
 # lesson 14
 
 ## 1、读取网页上的username和password
