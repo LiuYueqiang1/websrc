@@ -377,7 +377,13 @@ func main() {
 }
 ```
 
-# lesson 11 map和结构体
+# lesson 10 map和结构体
+
+```go
+gin.H就是map类型
+```
+
+
 
 ```go
 func main() {
@@ -409,6 +415,135 @@ func main() {
       c.JSON(http.StatusOK, data)
    })
    r.Run()
+}
+```
+
+lesson 11 从网址获取内容打印到网页中
+
+```go
+func main() {
+   r := gin.Default()
+   r.GET("/web", func(c *gin.Context) {
+      name := c.Query("query")
+      age := c.Query("age")
+      //name := c.DefaultQuery("query", "somebody") //取不到就用指定的默认值
+
+      //name, ok := c.GetQuery("query")
+      //if !ok {
+      // //取不到
+      // name = "somebody"
+      //}
+
+      c.JSON(http.StatusOK, gin.H{
+         "name": name,
+         "age":  age,
+      })
+   })
+   r.Run()
+}
+```
+
+```
+//http://127.0.0.1:8080/web?query=筱往&age=18
+```
+
+# lesson 12 表单输入用户名密码后打印
+
+```go
+c.PostForm()
+```
+
+
+
+```go
+// 将 网页中输入框中的文件密码取出，打印到index.html网页中
+func main() {
+   r := gin.Default()
+   r.LoadHTMLFiles("F:\\goland\\go_project\\go_web\\websrc\\web_12\\login.html", "F:\\goland\\go_project\\go_web\\websrc\\web_12\\index.html")
+   r.GET("/login", func(c *gin.Context) {
+      c.HTML(http.StatusOK, "login.html", nil)
+   })
+   // /login post
+   r.POST("/login", func(c *gin.Context) {
+      username := c.PostForm("username")         //根据html文件得到用户名
+      password := c.PostForm("password")         //根据html文件得到密码
+      c.HTML(http.StatusOK, "index.html", gin.H{ //加载文件
+         "Name":     username,
+         "Password": password,
+      })
+   })
+   r.Run(":9090")
+}
+```
+
+```html
+login.html
+<!DOCTYPE html>  
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>login</title>
+</head>
+<body>
+<form action="/login" method="post" novalidate autocomplete="off">
+    <label for="username">username:</label>
+  <div><input type="text" name="username" id ="username"></div>
+    <label for="password">password:</label>
+   <div><input type="password" name="password" id ="password"></div>
+
+    <input type="submit" value="登录">
+</form>
+
+</body>
+</html>
+```
+
+```html
+index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>index</title>
+</head>
+<body>
+<h1>Hello,{{.Name}}!</h1>
+<p>你的密码是：{{.Password}}</p>
+</body>
+</html>
+```
+
+# lesson 13 从网页中加载年月信息
+
+```go
+// 从网页中读取年月信息，或者名字，年龄等信息
+func main() {
+   r := gin.Default()
+   r.GET("/user/:name/:age", func(c *gin.Context) {
+      // 获得路径参数
+      name := c.Param("name")
+      age := c.Param("age")
+
+      c.JSON(http.StatusOK, gin.H{
+         "name": name,
+         "age":  age,
+      })
+   })
+   //http://127.0.0.1:9090/blog/2022/12
+   //{"month":"12","year":"2022"}
+   r.GET("blog/:year/:month", func(c *gin.Context) {
+      year := c.Param("year")
+      month := c.Param("month")
+      c.JSON(http.StatusOK, gin.H{
+         "year":  year,
+         "month": month,
+      })
+   })
+   r.Run(":9090")
 }
 ```
 
@@ -511,35 +646,270 @@ r.Run()
 
 # lesson 15 文件上传
 
+```go
+c.FormFile("f1")
+//读取成功的话，把文件加载到
+ dst := path.Join("F:\\goland\\go_project\\go_web\\websrc\\web_15", f.Filename)
+         c.SaveUploadedFile(f, dst)
+```
+
+
+
+```go
+func main() {
+   r := gin.Default()
+   r.LoadHTMLFiles("F:\\goland\\go_project\\go_web\\websrc\\web_15\\index.html")
+   r.GET("/index", func(c *gin.Context) {
+      c.HTML(http.StatusOK, "index.html", nil)
+   })
+   r.POST("/upload", func(c *gin.Context) {
+       //FormFile返回所提供表单键的第一个文件
+      f, err := c.FormFile("f1")
+      if err != nil {
+         c.JSON(http.StatusBadRequest, gin.H{
+            "error": err.Error(),
+         })
+         return
+      } else {
+         // dst := fmt.Sprintf("F:\\goland\\go_project\\go_web\\websrc\\web_15\\%s", f.Filename)
+         dst := path.Join("F:\\goland\\go_project\\go_web\\websrc\\web_15", f.Filename)
+         c.SaveUploadedFile(f, dst)
+         c.JSON(http.StatusBadRequest, gin.H{
+            "status": "OK",
+         })
+      }
+   })
+   r.Run()
+}
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>上传文件示例</title>
+</head>
+<body>
+{{/*发送post请求，发送到gin框架的upload表单中*/}}
+{{/*加后面的enctype enctype="multipart/form-data" 才能上传成功，不加也行，别加novalidate autocomplete="off" 就行*/}}
+<form action="/upload" method="post"  >
+    <input type="file" name="f1">
+    <input type="submit" value="上传">
+</form>
+</body>
+</html>
+```
+
+# lesson 16 网页重定向
+
+```go
+c.Redirect(http.StatusMovePermanently,"http://www.baidu.com")
+c.Request.URL.Path="/b"
+c.HandleContext(c)
+```
+
+```go
+func main() {
+   r := gin.Default()
+   r.GET("/index", func(c *gin.Context) {
+      //c.JSON(http.StatusOK, gin.H{
+      // "message": "ok",
+      //})
+      c.Redirect(http.StatusMovedPermanently, "http://www.baidu.com")
+   })
+
+   r.GET("/a", func(c *gin.Context) {
+      c.Request.URL.Path = "/b"
+      r.HandleContext(c)
+   })
+   r.GET("/b", func(c *gin.Context) {
+      c.JSON(http.StatusOK, gin.H{
+         "message": "ok",
+      })
+   })
+   r.Run()
+}
+```
+
+# lesson 17 路由组
+
+```go
+//加载任何方法
+r.Any("/home",func(c *gin.Context){
+    c.JSON(http.StatusOK,gin.H{
+        "method":"PUT"
+    })
+})
+//路由组的嵌套
+shopGroup:=r.Group("/shop")
+{
+    shopGroup.GET("/index",func(c *gin.Context),nil){
+	        
+    }
+}
+```
+
+
+
+```go
+package main
+
+import (
+   "github.com/gin-gonic/gin"
+   "net/http"
+)
+
+func main() {
+   r := gin.Default()
+   r.GET("/index", func(c *gin.Context) {
+      c.JSON(http.StatusOK, gin.H{
+         "method": "GET",
+      })
+   }) //获取信息
+    
+   r.POST("/index", func(c *gin.Context) {
+      c.JSON(http.StatusOK, gin.H{
+         "method": "POST",
+      })
+   }) //创建操作
+   
+    r.DELETE("/index", func(c *gin.Context) {
+      c.JSON(http.StatusOK, gin.H{
+         "method": "DELETE",
+      })
+   }) //
+   
+    r.PUT("/index", func(c *gin.Context) {
+      c.JSON(http.StatusOK, gin.H{
+         "method": "PUT",
+      })
+   }) //更新操作
+
+   r.Any("/home", func(c *gin.Context) {
+      switch c.Request.Method {
+      case "GET":
+         c.JSON(http.StatusOK, gin.H{"method": "GET"})
+      case http.MethodPost:
+         c.JSON(http.StatusOK, gin.H{"method": "POST"})
+      }
+   })
+
+   //404
+   r.NoRoute(func(c *gin.Context) {
+      c.JSON(http.StatusNotFound, gin.H{"mes": "404 not found"})
+   })
+   //路由组
+   videoGroup := r.Group("/video")
+   {
+      videoGroup.GET("/index", func(c *gin.Context) {
+         c.JSON(http.StatusOK, gin.H{"message": "/video/index"})
+      })
+      videoGroup.GET("/xx", func(c *gin.Context) {
+         c.JSON(http.StatusOK, gin.H{"message": "/video/xx"})
+      })
+      videoGroup.GET("/ee", func(c *gin.Context) {
+         c.JSON(http.StatusOK, gin.H{"message": "/video/ee"})
+      })
+   }
+   //嵌套路由组
+   shopGroup := r.Group("/shop")
+   {
+      shopGroup.GET("/index", func(c *gin.Context) {
+         c.JSON(http.StatusOK, gin.H{"messsage": "shop/index"})
+      })
+      //嵌套
+      xx := shopGroup.Group("/xx")
+      {
+         xx.GET("/oo", func(c *gin.Context) {
+            c.JSON(http.StatusOK, gin.H{"message": "shop/xx/oo"})
+         })
+      }
+   }
+   r.Run()
+}
+```
+
 # lesson 18 中间件
 
 浏览器 -路由（处理函数）
 
 认证了就登陆，否则打回去
 
-![image-20230511211016163](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511211016163.png)
+![image-20230511211016163](F:\goland\go_project\go_web\websrc\web_18\1.png)
 
-简单的中间件
+![image-20230511212944368](F:\goland\go_project\go_web\websrc\web_18\2.png)
 
-![image-20230511211844509](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511211844509.png)
+![image-20230511213030175](F:\goland\go_project\go_web\websrc\web_18\3.png)
 
-![image-20230511212205430](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511212205430.png)
+```go
+package main
 
-![image-20230511212944368](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511212944368.png)
+// gin中间件
+import (
+   "fmt"
+   "github.com/gin-gonic/gin"
+   "net/http"
+   "time"
+)
+
+func indexHandler(c *gin.Context) {
+   fmt.Println("index")
+   c.JSON(http.StatusOK, gin.H{
+      "msg": "index",
+   })
+}
+
+// 定义一个gin中间件 ，统计请求处理函数的耗时
+func m1(c *gin.Context) {
+   fmt.Println("m1 in ...")
+   //计时
+   start := time.Now()
+   c.Next()                  //调用后续的处理函数
+   cost := time.Since(start) //统计所有处理函数花费的时间
+   fmt.Println("cost:", cost)
+   fmt.Println("m1 out ...")
+}
+func m2(c *gin.Context) {
+   fmt.Println("m2 in ...")
+   //c.Next() //调用后续的处理函数
+   c.Abort() //阻止调用后续函数
+   fmt.Println("m2 out ...")
+   // m1 in ...
+   // m2 in ...
+   // m2 out ...
+   //cost: 711.6µs
+   // m1 out ...
+
+   //return
+   //m1 in ...
+   //m2 in ...
+   //cost: 1.2252ms
+   //m1 out ...
+}
+func main() {
+   r := gin.Default()
+   //r.GET("/index", m1, indexHandler)
+   r.Use(m1, m2) //全局注册中间件m1,m2
+   r.GET("/index", indexHandler)
+   r.GET("/shop", func(c *gin.Context) {
+      c.JSON(http.StatusOK, gin.H{
+         "msg": "shop",
+      })
+   })
+   r.GET("/user", func(c *gin.Context) {
+      c.JSON(http.StatusOK, gin.H{
+         "msg": "user",
+      })
+   })
+   r.Run(":9090")
+}
+```
 
 
-
-![image-20230511213030175](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511213030175.png)
-
-![image-20230511213313502](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511213313502.png)
-
-![image-20230511213326704](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511213326704.png)
-
-
-
-![image-20230511215703412](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511215703412.png)
-
-![image-20230511220049309](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230511220049309.png)
 
 # lesson 19 Gorm
 
