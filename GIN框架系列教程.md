@@ -839,11 +839,11 @@ func main() {
 
 认证了就登陆，否则打回去
 
-![image-20230511211016163](F:\goland\go_project\go_web\websrc\web_18\1.png)
+![1.png](https://github.com/LiuYueqiang1/websrc/blob/main/web_18/1.png?raw=true)
 
-![image-20230511212944368](F:\goland\go_project\go_web\websrc\web_18\2.png)
+![2.png](https://github.com/LiuYueqiang1/websrc/blob/main/web_18/2.png?raw=true)
 
-![image-20230511213030175](F:\goland\go_project\go_web\websrc\web_18\3.png)
+![3.png](https://github.com/LiuYueqiang1/websrc/blob/main/web_18/3.png?raw=true)
 
 ```go
 package main
@@ -915,9 +915,47 @@ func main() {
 
 导包
 
+```go
+   "github.com/jinzhu/gorm"
+   _ "github.com/jinzhu/gorm/dialects/mysql"
+```
+
 创建数据库db1
 
+```go
+// 连接mysql数据库 ，数据库的用户名、密码
+db, err := gorm.Open("mysql", "root:961024@tcp(localhost:3306)/db1?charset=utf8mb4&parseTime=True&loc=Local")
+if err != nil {
+	fmt.Println("init db failed!,err:", err)
+	return
+}
+defer db.Close()
+```
+
 创建表
+
+```go
+//创建了一个名字为user_infos的表
+	db.AutoMigrate(&UserInfo{})
+```
+
+创建记录
+
+```go
+	//在 user_infos的表 创建记录
+	db.Create(&u1)
+```
+
+查询、更新、删除
+
+```go
+	//更新
+	db.Model(&u).Update("hobby", "唱跳rap")
+	//删除
+	db.Delete(&u) //故此处删掉的u为 ID：01的
+```
+
+
 
 ```go
 import (
@@ -1235,3 +1273,97 @@ func main() {
    r.Run()
 }
 ```
+
+# Gorm 增删改查
+
+## 查询
+
+### 一般查询
+
+```go
+// 根据主键查询第一条记录
+db.First(&user)
+//// SELECT * FROM users ORDER BY id LIMIT 1;
+```
+
+```go
+// 查询所有的记录
+db.Find(&users)
+//// SELECT * FROM users;
+```
+
+```go
+// 查询指定的某条记录(仅当主键为整型时可用)
+db.First(&user, 10)
+//// SELECT * FROM users WHERE id = 10;
+```
+
+### Where 条件
+
+```go
+// Get all matched records
+db.Where("name = ?", "jinzhu").Find(&users)
+//// SELECT * FROM users WHERE name = 'jinzhu';
+```
+
+```go
+// IN
+db.Where("name IN (?)", []string{"jinzhu", "jinzhu 2"}).Find(&users)
+//// SELECT * FROM users WHERE name in ('jinzhu','jinzhu 2');
+```
+
+### Struct & Map查询
+
+```go
+// Struct
+db.Where(&User{Name: "jinzhu", Age: 20}).First(&user)
+//// SELECT * FROM users WHERE name = "jinzhu" AND age = 20 LIMIT 1;
+
+// Map
+db.Where(map[string]interface{}{"name": "jinzhu", "age": 20}).Find(&users)
+//// SELECT * FROM users WHERE name = "jinzhu" AND age = 20;
+```
+
+## 更新
+
+### 更新所有字段
+
+`Save()`默认会更新该对象的所有字段，即使你没有赋值。
+
+```go
+db.First(&user)
+
+user.Name = "七米"
+user.Age = 99
+db.Save(&user)
+
+////  UPDATE `users` SET `created_at` = '2020-02-16 12:52:20', `updated_at` = '2020-02-16 12:54:55', `deleted_at` = NULL, `n
+```
+
+### 更新修改字段
+
+如果你只希望更新指定字段，可以使用`Update`或者`Updates`
+
+```go
+db.Model(&user).Update("name","修改名字")//修改所有
+db.Model(&user).Where("age = ? ",69).Update("name","修改名字")//修改指定
+```
+
+```go
+db.Model(&user).Update("age",gorm.Expr("age + ? + ?" , 2 , 100))
+```
+
+## 删除
+
+```go
+//删除现有记录
+db.Delete(&email)
+```
+
+```go
+db.Where("email LIKE ?","%jinzhu%").Delete(Email{})
+db.Where("age = ?",20).Delete(&user)
+```
+
+
+

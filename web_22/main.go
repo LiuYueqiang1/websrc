@@ -93,12 +93,16 @@ func main() {
 	//fmt.Println(user)
 
 	var user = make([]User, 10)
-	//Order排序
-	db.Order("age desc").Order("name").Find(&user)
+
+	db.Model(&user).Where("age=?", 69).Update("name", "名字修改")
+	db.Find(&user)
 	fmt.Println(user)
+	//Order排序
+	//db.Order("age desc").Order("name").Find(&user)
+	//fmt.Println(user)
 
 	//Count，该 model 能获取的记录总数。
-	var count int
-	db.Model(&User{}).Where("name = ?", "掌门人").Count(&count)
-	fmt.Println(count)
+	//var count int
+	//db.Model(&User{}).Where("name = ?", "掌门人").Count(&count)
+	//fmt.Println(count)
 }
